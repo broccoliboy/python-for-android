@@ -4,6 +4,7 @@ import sys
 
 from packaging.version import Version
 
+from pythonforandroid.logger import info
 from pythonforandroid.prerequisites import (
     check_and_install_default_prerequisites,
 )
@@ -65,6 +66,10 @@ def check_python_dependencies():
 
 
 def check():
-    if not environ.get("SKIP_PREREQUISITES_CHECK", "0") == "1":
+    env_key = "SKIP_PREREQUISITES_CHECK"
+    if not environ.get(env_key, "0") == "1":
+        info(f"Starting prerequisites check. This can be skipped by setting env variable {env_key}=1")
         check_and_install_default_prerequisites()
+    else:
+        info(f"Prerequisites check was skipped because env variable {env_key} was set to 1. Remove from env or set to 0 to enable prerequisites checking.")
     check_python_dependencies()
