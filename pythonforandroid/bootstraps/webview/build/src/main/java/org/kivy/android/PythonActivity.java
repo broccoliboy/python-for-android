@@ -61,6 +61,7 @@ public class PythonActivity extends Activity {
     private ResourceManager resourceManager = null;
     private Bundle mMetaData = null;
     private PowerManager.WakeLock mWakeLock = null;
+    private int mPresplashColor = Color.BLACK;
 
     public String getAppRoot() {
         String app_root =  getFilesDir().getAbsolutePath() + "/app";
@@ -95,6 +96,25 @@ public class PythonActivity extends Activity {
         Log.v(TAG, "My oncreate running");
         resourceManager = new ResourceManager(this);
         super.onCreate(savedInstanceState);
+
+        /*
+         * Try to parse background color for use in layout, webview, and presplash image
+         * https://developer.android.com/reference/android/graphics/Color.html
+         * Parse the color string, and return the corresponding color-int.
+         * If the string cannot be parsed, throws an IllegalArgumentException exception.
+         * Supported formats are: #RRGGBB #AARRGGBB or one of the following names:
+         * 'red', 'blue', 'green', 'black', 'white', 'gray', 'cyan', 'magenta', 'yellow',
+         * 'lightgray', 'darkgray', 'grey', 'lightgrey', 'darkgrey', 'aqua', 'fuchsia',
+         * 'lime', 'maroon', 'navy', 'olive', 'purple', 'silver', 'teal'.
+         */
+        String backgroundColor = resourceManager.getString("presplash_color");
+        if (backgroundColor != null) {
+          try {
+            this.mPresplashColor = Color.parseColor(backgroundColor);
+          } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Invalid color string for presplash_color: " + backgroundColor);
+          }
+        }
 
         this.mActivity = this;
         this.showLoadingScreen();
@@ -158,6 +178,7 @@ public class PythonActivity extends Activity {
             String app_root_dir = getAppRoot();
 
             mWebView = new WebView(PythonActivity.mActivity);
+            mWebView.setBackgroundColor(mPresplashColor);
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
             mWebView.loadUrl("file:///android_asset/_load.html");
@@ -183,6 +204,7 @@ public class PythonActivity extends Activity {
                     }
                 });
             mLayout = new AbsoluteLayout(PythonActivity.mActivity);
+            mLayout.setBackgroundColor(mPresplashColor);
             mLayout.addView(mWebView);
 
             setContentView(mLayout);
@@ -333,23 +355,7 @@ public class PythonActivity extends Activity {
 
         mImageView = new ImageView(this);
         mImageView.setImageBitmap(bitmap);
-
-        /*
-         * Set the presplash loading screen background color
-         * https://developer.android.com/reference/android/graphics/Color.html
-         * Parse the color string, and return the corresponding color-int.
-         * If the string cannot be parsed, throws an IllegalArgumentException exception.
-         * Supported formats are: #RRGGBB #AARRGGBB or one of the following names:
-         * 'red', 'blue', 'green', 'black', 'white', 'gray', 'cyan', 'magenta', 'yellow',
-         * 'lightgray', 'darkgray', 'grey', 'lightgrey', 'darkgrey', 'aqua', 'fuchsia',
-         * 'lime', 'maroon', 'navy', 'olive', 'purple', 'silver', 'teal'.
-         */
-        String backgroundColor = resourceManager.getString("presplash_color");
-        if (backgroundColor != null) {
-          try {
-            mImageView.setBackgroundColor(Color.parseColor(backgroundColor));
-          } catch (IllegalArgumentException e) {}
-        }
+        mImageView.setBackgroundColor(mPresplashColor);
         mImageView.setLayoutParams(new ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.FILL_PARENT,
         ViewGroup.LayoutParams.FILL_PARENT));
