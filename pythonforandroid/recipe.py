@@ -1311,7 +1311,7 @@ class PyProjectRecipe(PythonRecipe):
             return
 
         self.install_hostpython_prerequisites(
-            packages=["build[virtualenv]", "pip", "setuptools"] + self.hostpython_prerequisites
+            packages=["build[virtualenv]", "pip", "setuptools", "patchelf"] + self.hostpython_prerequisites
         )
         self.patch_shebangs(self._host_recipe.site_bin, self.real_hostpython_location)
 
